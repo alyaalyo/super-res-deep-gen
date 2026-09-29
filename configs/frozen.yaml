@@ -1,0 +1,112 @@
+# Written by scripts/tune_dev.py; do not edit by hand. The test split runs with this file.
+seed: 2026
+paths:
+  data: data
+  weights: weights
+  outputs: outputs
+  results: results
+data:
+  hr_size: 512
+  scale: 4
+  jpeg_qualities:
+  - none
+  - 50
+  - 30
+  - 10
+  jpeg_subsampling: 2
+  objects:
+    first_id: 801
+    last_id: 900
+    n_dev: 20
+  faces:
+    pool:
+    - 0
+    - 999
+    n_dev: 20
+    n_test: 100
+  text:
+    fonts:
+    - DejaVuSans.ttf
+    - DejaVuSerif.ttf
+    - DejaVuSansMono.ttf
+    sizes:
+    - 16
+    - 24
+    - 32
+    - 48
+    kinds:
+    - words
+    - codes
+    reps_test: 4
+    reps_dev: 1
+    seed_test: 1001
+    seed_dev: 2002
+    margin: 24
+    line_spacing: 1.6
+methods:
+- bicubic
+- realesrnet
+- realesrgan
+- resshift
+models:
+  realesrnet:
+    url: https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.1/RealESRNet_x4plus.pth
+    half_on_cuda: true
+  realesrgan:
+    url: https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
+    half_on_cuda: true
+  resshift:
+    version: v3
+    url: https://github.com/zsyOAOA/ResShift/releases/download/v2.0/resshift_realsrx4_s4_v3.pth
+    vqgan_url: https://github.com/zsyOAOA/ResShift/releases/download/v2.0/autoencoder_vq_f4.pth
+    amp: true
+    seed: 0
+  sd_upscaler:
+    repo: stabilityai/stable-diffusion-x4-upscaler
+    steps: 20
+    noise_level: 20
+    guidance_scale: 0.0
+    prompt: ''
+metrics:
+  crop_border: 4
+  lpips_net: alex
+  ocr:
+    psm: 6
+    upscale: 1
+    dictionary: true
+  face:
+    target_fmr: 0.001
+    threshold: 0.1822
+stats:
+  n_boot: 10000
+  ci: 0.95
+seed_experiment:
+  seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  per_content: 10
+  jpeg_qualities:
+  - none
+  - 30
+frozen:
+  at: '2026-09-29 00:03:02'
+  config_hash: 6784837f96a0
+  tuned_on: dev split only
+  ocr_grid:
+    psm:
+    - 4
+    - 6
+    upscale:
+    - 1
+    - 2
+    - 3
+    dictionary:
+    - true
+    - false
+  face_impostor_pairs: 6270
+  resshift_precision_check:
+    lpips_fp16_vs_fp32: 0.00072
+    lpips_seed_vs_seed: 0.06471

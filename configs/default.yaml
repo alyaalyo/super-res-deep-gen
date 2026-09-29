@@ -1,0 +1,83 @@
+# Default experiment configuration.
+#
+# Dev-tuned values (OCR settings, face-match threshold) are filled in by
+# scripts/tune_dev.py, which writes configs/frozen.yaml. The test split can
+# only be run with the frozen config.
+
+seed: 2026
+
+paths:
+  data: data
+  weights: weights
+  outputs: outputs
+  results: results
+
+data:
+  hr_size: 512
+  scale: 4
+  # JPEG quality applied to the 128x128 LR image. "none" = no compression.
+  jpeg_qualities: [none, 50, 30, 10]
+  jpeg_subsampling: 2          # PIL code for 4:2:0 chroma subsampling (libjpeg default)
+
+  objects:                     # DIV2K validation 0801-0900, 512x512 centre crops
+    first_id: 801
+    last_id: 900
+    n_dev: 20                  # the remaining 80 are test
+
+  faces:                       # FFHQ, 1024 -> 512 (bicubic, antialiased)
+    pool: [0, 999]             # sample from FFHQ images 00000-00999
+    n_dev: 20
+    n_test: 100
+
+  text:                        # synthetic rendered text, black on white
+    fonts: [DejaVuSans.ttf, DejaVuSerif.ttf, DejaVuSansMono.ttf]
+    sizes: [16, 24, 32, 48]    # font size in HR pixels (LR: 4, 6, 8, 12 px)
+    kinds: [words, codes]      # dictionary words vs random alphanumeric codes
+    reps_test: 4               # 3 fonts x 4 sizes x 2 kinds x 4 = 96 test images
+    reps_dev: 1                # 3 x 4 x 2 x 1 = 24 dev images
+    seed_test: 1001            # dev and test text use different random seeds
+    seed_dev: 2002
+    margin: 24
+    line_spacing: 1.6
+
+methods: [bicubic, realesrnet, realesrgan, resshift]
+
+models:
+  realesrnet:
+    url: https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.1/RealESRNet_x4plus.pth
+    half_on_cuda: true
+  realesrgan:
+    url: https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
+    half_on_cuda: true
+  resshift:
+    version: v3                # journal version, 4 sampling steps
+    url: https://github.com/zsyOAOA/ResShift/releases/download/v2.0/resshift_realsrx4_s4_v3.pth
+    vqgan_url: https://github.com/zsyOAOA/ResShift/releases/download/v2.0/autoencoder_vq_f4.pth
+    amp: true                  # fp16 autocast, as in the official sampler
+    seed: 0                    # per-image noise seed = seed + hash(image id)
+  sd_upscaler:                 # fallback if ResShift cannot be run
+    repo: stabilityai/stable-diffusion-x4-upscaler
+    steps: 20
+    noise_level: 20
+    guidance_scale: 0.0
+    prompt: ""
+
+metrics:
+  crop_border: 4               # standard SR protocol: ignore 4 px border for PSNR/SSIM
+  lpips_net: alex
+  ocr:                         # overwritten by dev tuning
+    psm: 6
+    upscale: 2
+    dictionary: true
+  face:
+    target_fmr: 0.001          # threshold = dev impostor score at this false-match rate
+    threshold: null            # filled in by dev tuning
+
+stats:
+  n_boot: 10000
+  ci: 0.95
+
+seed_experiment:
+  seeds: [0, 1, 2, 3, 4]       # seed 0 is the main run
+  per_content: 10              # test images per content type
+  jpeg_qualities: [none, 30]

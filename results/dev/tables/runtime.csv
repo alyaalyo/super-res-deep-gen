@@ -1,0 +1,5 @@
+source,device,method,n,sec_mean,sec_median,peak_mb
+dev run,Apple MPS,bicubic,256,0.0059915234375,0.005965,0.5
+dev run,Apple MPS,realesrgan,256,0.22899125,0.22878,1120.5
+dev run,Apple MPS,realesrnet,256,0.2264775390625,0.226315,1120.5
+dev run,Apple MPS,resshift,256,3.0165203125,3.0440199999999997,6315.7

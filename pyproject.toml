@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "srbench"
+version = "1.0.0"
+description = "How much fidelity do generative x4 super-resolution models give up for perceptual quality? Zero-shot evaluation on objects, faces and text under JPEG compression."
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pillow",
+    "opencv-python-headless",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "pyyaml",
+    "tqdm",
+    "requests",
+    "torch",
+    "torchvision",
+    "lpips",
+    "pyiqa",
+    "pytesseract",
+    "rapidfuzz",
+    "tabulate",
+    "insightface",
+    "onnxruntime",
+    # ResShift (third_party/ResShift) runtime deps
+    "omegaconf",
+    "einops",
+    "loguru",
+    "timm",
+    "loralib",
+]
+
+[project.optional-dependencies]
+fallback = ["diffusers", "transformers", "accelerate"]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
